@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Clientes{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Clientes</h2>
+    <a href="{{ url_for('novo_cliente') }}" class="btn btn-success">
+        <i class="bi bi-plus-circle"></i> Novo Cliente
+    </a>
+</div>
+
+<table class="table table-hover align-middle">
+    <thead class="table-dark">
+        <tr>
+            <th>ID</th>
+            <th>Nome</th>
+            <th>CPF</th>
+            <th>Celular</th>
+            <th>E-mail</th>
+            <th>Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for c in clientes %}
+        <tr>
+            <td>{{ c.id_cliente }}</td>
+            <td><strong>{{ c.nome }}</strong></td>
+            <td class="cpf">{{ c.cpf }}</td>
+            <td class="celular">{{ c.celular }}</td>
+            <td>{{ c.email }}</td>
+            <td>
+                <a href="{{ url_for('editar_cliente', id=c.id_cliente) }}" class="btn btn-warning btn-sm">
+                    <i class="bi bi-pencil"></i> Editar
+                </a>
+                {% if current_user.perfil == 'Gerente' %}
+                <form action="{{ url_for('excluir_cliente', id=c.id_cliente) }}" method="POST" class="d-inline">
+                    <button type="submit" class="btn btn-danger btn-sm" 
+                            onclick="return confirm('Tem certeza que deseja excluir {{ c.nome }}?')">
+                        <i class="bi bi-trash"></i> Excluir
+                    </button>
+                </form>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<!-- Formatação automática de CPF e Celular na tabela -->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // Formata todos os CPF
+    document.querySelectorAll('.cpf').forEach(el => {
+        let cpf = el.textContent.trim().replace(/\D/g, '');
+        if (cpf.length === 11) {
+            el.textContent = cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+        }
+    });
+
+    // Formata todos os celulares
+    document.querySelectorAll('.celular').forEach(el => {
+        let cel = el.textContent.trim().replace(/\D/g, '');
+        if (cel.length === 11) {
+            el.textContent = cel.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+        } else if (cel.length === 10) {
+            el.textContent = cel.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
+        }
+    });
+});
+</script>
+{% endblock %}
