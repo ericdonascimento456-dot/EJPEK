@@ -1,0 +1,14 @@
+# public/.htaccess
+# Protege app/ e roteia tudo pela pasta public/
+
+# Ativa o motor de reescrita
+Options -Indexes
+RewriteEngine On
+
+# Serve arquivos e diretórios físicos diretamente (css, js, uploads…)
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# Qualquer outra requisição → index.php (Front Controller)
+RewriteRule ^(.*)$ index.php [QSA,L]

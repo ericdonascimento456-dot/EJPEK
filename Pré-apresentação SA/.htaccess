@@ -1,0 +1,14 @@
+# sgf_sistema/.htaccess — Raiz do projeto
+#
+# Bloqueia acesso direto a qualquer pasta que não seja public/.
+# Todo tráfego HTTP deve passar pelo Front Controller em public/index.php.
+
+Options -Indexes
+
+# Bloqueia acesso direto a app/, vendor/, uploads/ e DOCS/
+RewriteEngine On
+RewriteRule ^(app|vendor|uploads|DOCS)(/|$) - [F,L]
+
+# Redireciona a raiz para public/
+RewriteCond %{REQUEST_URI} ^/?$
+RewriteRule ^$ public/ [L]
