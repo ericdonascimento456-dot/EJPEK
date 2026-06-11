@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}OS #{{ ordem.id_os }}{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Ordem de Serviço #{{ ordem.id_os }}</h2>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card shadow mb-4">
+            <div class="card-body">
+                <p><strong>Cliente:</strong> {{ ordem.cliente_nome }}</p>
+                <p><strong>Veículo:</strong> {{ ordem.placa }}</p>
+                <p><strong>Data Abertura:</strong> {{ ordem.data_abertura|data_br }}</p>
+                <p><strong>Status:</strong> 
+                    <span class="badge bg-{{ 'success' if ordem.status == 'Finalizada' else 'warning' }}">{{ ordem.status }}</span>
+                </p>
+                <p><strong>Diagnóstico:</strong> {{ ordem.diagnostico }}</p>
+                <p><strong>Prazo Previsto:</strong> {{ ordem.prazo_previsto|data_br }}</p>
+                {% if ordem.data_fechamento %}
+                <p><strong>Data Fechamento:</strong> {{ ordem.data_fechamento|data_br }}</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <h4>Itens / Peças Utilizadas</h4>
+        <table class="table table-sm table-bordered">
+            <thead class="table-light">
+                <tr><th>Peça</th><th>Quantidade</th><th>Preço Unit.</th><th>Total</th></tr>
+            </thead>
+            <tbody>
+                {% for i in itens %}
+                <tr>
+                    <td>{{ i.descricao }}</td>
+                    <td>{{ i.quantidade }}</td>
+                    <td>R$ {{ "%.2f"|format(i.preco_venda) }}</td>
+                    <td>R$ {{ "%.2f"|format(i.preco_venda * i.quantidade) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            {% set total = namespace(valor=0) %}
+            {% for i in itens %}
+                {% set total.valor = total.valor + (i.preco_venda * i.quantidade) %}
+            {% endfor %}
+            <tfoot>
+                <tr class="table-primary fw-bold">
+                    <td colspan="3" class="text-end">TOTAL</td>
+                    <td>R$ {{ "%.2f"|format(total.valor) }}</td>
+                </tr>
+            </tfoot>
+        </table>
+
+        {% if ordem.status != 'Finalizada' %}
+        <div class="card border-primary mb-4">
+            <div class="card-header bg-primary text-white">Adicionar Peça</div>
+            <div class="card-body">
+                <form action="{{ url_for('adicionar_peca_os', id_os=ordem.id_os) }}" method="POST" class="row g-3">
+                    <div class="col-md-7">
+                        <select name="id_peca" class="form-select" required>
+                            <option value="">Selecione uma peça</option>
+                            {% for p in pecas %}
+                            <option value="{{ p.id_peca }}">{{ p.descricao }} ({{ p.estoque_atual }} em estoque)</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="number" name="quantidade" class="form-control" value="1" min="1" required>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100">Adicionar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="col-md-4">
+        {% if ordem.status != 'Finalizada' %}
+        <div class="card shadow border-success">
+            <div class="card-header bg-success text-white">Finalizar Ordem de Serviço</div>
+            <div class="card-body">
+                <form action="{{ url_for('fechar_ordem', id_os=ordem.id_os) }}" method="POST">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Valor Total da OS (R$)</label>
+                        <input type="number" step="0.01" name="valor_total" class="form-control form-control-lg text-end fw-bold" 
+                               value="{{ "%.2f"|format(total.valor) }}" required>
+                    </div>
+                    <button type="submit" class="btn btn-success w-100 btn-lg"
+                            onclick="return confirm('Tem certeza que deseja FINALIZAR esta OS?')">
+                        Finalizar OS
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% else %}
+        <div class="alert alert-success text-center">
+            <h4>OS Finalizada</h4>
+            <p class="fs-4">Valor total: R$ {{ "%.2f"|format(ordem.valor_total) }}</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}{{ acao }}{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">{{ acao }}</h2>
+<div class="card shadow">
+    <div class="card-body">
+        <form method="POST">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label>Placa</label>
+                    <input type="text" name="placa" class="form-control" value="{{ veiculo.placa if veiculo else '' }}" maxlength="8" required style="text-transform:uppercase">
+                </div>
+                <div class="col-md-4">
+                    <label>Modelo</label>
+                    <input type="text" name="modelo" class="form-control" value="{{ veiculo.modelo if veiculo else '' }}" required>
+                </div>
+                <div class="col-md-4">
+                    <label>Marca</label>
+                    <input type="text" name="marca" class="form-control" value="{{ veiculo.marca if veiculo else '' }}" required>
+                </div>
+                <div class="col-md-3">
+                    <label>Ano</label>
+                    <input type="number" name="ano" class="form-control" value="{{ veiculo.ano if veiculo else '' }}" required>
+                </div>
+                <div class="col-md-3">
+                    <label>Cor</label>
+                    <input type="text" name="cor" class="form-control" value="{{ veiculo.cor if veiculo else '' }}">
+                </div>
+                <div class="col-md-3">
+                    <label>KM Atual</label>
+                    <input type="number" name="km_atual" class="form-control" value="{{ veiculo.km_atual if veiculo else '' }}" required>
+                </div>
+                <div class="col-md-3">
+                    <label>Cliente</label>
+                    <select name="id_cliente" class="form-select" required>
+                        {% for cli in clientes %}
+                        <option value="{{ cli.id_cliente }}" {% if veiculo and veiculo.id_cliente == cli.id_cliente %}selected{% endif %}>
+                            {{ cli.nome }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <hr>
+            <button type="submit" class="btn btn-success">Salvar Veículo</button>
+            <a href="{{ url_for('veiculos') }}" class="btn btn-secondary">Cancelar</a>
+        </form>
+    </div>
+</div>
+{% endblock %}
